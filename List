@@ -1,0 +1,68 @@
+import { Text, SafeAreaView, StyleSheet, Button} from 'react-native';
+import React, { useState } from 'react';
+
+export default function App() {
+  //Kaylan McCarrell Shopping list Final Project
+   const [items, setItems] = useState([]);
+  const [newItem, setNewItem] = useState("");
+
+  const handleAddItem = () => {
+    if (newItem.trim() !== "") {
+      setItems([...items, newItem]);
+      setNewItem("");
+    }
+  };
+
+  const handleDeleteItem = (index) => {
+    const updatedItems = items.filter((item, itemIndex) => itemIndex !== index);
+    setItems(updatedItems);
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+        <h1 style={styles.h1}>Shopping List</h1>
+
+        <input type="text" value={newItem} onChange={(e) => setNewItem(e.target.value)} placeholder="Add a new item"/>
+        <button onClick={handleAddItem}>Add</button>
+
+        <ul style={styles.ul}>
+          {items.map((item, index) => (
+            <li key={index} style = {styles.item}>
+              {item}
+              <button onClick={() => handleDeleteItem(index)} >Remove</button>
+            </li>
+          ))}
+        </ul>
+      </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'lemonchiffon'
+  },
+  h1: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'mistyrose',
+    padding: 8,
+    fontFamily: 'cursive',
+    borderBottom: '2px dotted',
+    borderTop: '2px dotted',
+  },
+
+  ul: {
+    padding: 10,
+    margin: 10,
+    listStyleType: 'none',
+    fontFamily: 'cursive',
+  },
+  item: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px 0',
+    borderBottom: '1px solid #ccc',
+    fontFamily: 'cursive',
+  }
+});
