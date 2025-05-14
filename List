@@ -1,56 +1,115 @@
-import { Text, SafeAreaView, StyleSheet, Button} from 'react-native';
+import { Text, SafeAreaView, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 
 export default function App() {
-  //Kaylan McCarrell Shopping list Final Project
-   const [items, setItems] = useState([]);
+  const [itemsByCategory, setItemsByCategory] = useState({});
   const [newItem, setNewItem] = useState("");
+  const [category, setCategory] = useState("Dairy");
+  const [customCategory, setCustomCategory] = useState("");
+  const [categories, setCategories] = useState(["Dairy", "Meat", "Snacks", "Canned Goods", "Sanitary", "Pets"]);
 
-  const handleAddItem = () => {
-    if (newItem.trim() !== "") {
-      setItems([...items, newItem]);
-      setNewItem("");
-    }
+  const getSelectedCategory = () => {
+    return category === "Custom" && customCategory.trim() !== ""
+      ? customCategory.trim()
+      : category;
   };
 
-  const handleDeleteItem = (index) => {
-    const updatedItems = items.filter((item, itemIndex) => itemIndex !== index);
-    setItems(updatedItems);
+  const handleAddItem = () => {
+    const selectedCategory = getSelectedCategory();
+    if (newItem.trim() === "" || selectedCategory === "") return;
+
+    if (!categories.includes(selectedCategory)) {
+      setCategories([...categories, selectedCategory]);
+    }
+
+    const updatedItems = { ...itemsByCategory };
+    if (!updatedItems[selectedCategory]) {
+      updatedItems[selectedCategory] = [];
+    }
+    updatedItems[selectedCategory].push(newItem.trim());
+    setItemsByCategory(updatedItems);
+
+    setNewItem("");
+    setCategory("Dairy");
+    setCustomCategory("");
+  };
+
+  const handleDeleteItem = (categoryName, index) => {
+    const updatedItems = { ...itemsByCategory };
+    updatedItems[categoryName].splice(index, 1);
+    if (updatedItems[categoryName].length === 0) {
+      delete updatedItems[categoryName];
+    }
+    setItemsByCategory(updatedItems);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-        <h1 style={styles.h1}>Shopping List</h1>
+      <h1 style={styles.h1}>Shopping List</h1>
 
-        <input type="text" value={newItem} onChange={(e) => setNewItem(e.target.value)} placeholder="Add a new item"/>
-        <button onClick={handleAddItem}>Add</button>
+      <input
+        type="text"
+        value={newItem}
+        onChange={(e) => setNewItem(e.target.value)}
+        placeholder="Item name"
+      />
 
-        <ul style={styles.ul}>
-          {items.map((item, index) => (
-            <li key={index} style = {styles.item}>
-              {item}
-              <button onClick={() => handleDeleteItem(index)} >Remove</button>
-            </li>
-          ))}
-        </ul>
-      </SafeAreaView>
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        style={styles.select}
+      >
+        {categories.map((cat, index) => (
+          <option key={index} value={cat}>{cat}</option>
+        ))}
+        <option value="Custom">Custom...</option>
+      </select>
+
+      {category === "Custom" && (
+        <input
+          type="text"
+          value={customCategory}
+          onChange={(e) => setCustomCategory(e.target.value)}
+          placeholder="New category"
+        />
+      )}
+
+      <button onClick={handleAddItem}>Add</button>
+
+      {Object.keys(itemsByCategory).map((cat, catIndex) => (
+        <div key={catIndex}>
+          <h2 style={styles.categoryHeader}>{cat}</h2>
+          <ul style={styles.ul}>
+            {itemsByCategory[cat].map((item, index) => (
+              <li key={index} style={styles.item}>
+                {item}
+                <button onClick={() => handleDeleteItem(cat, index)}>Remove</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'lemonchiffon'
+    backgroundColor: 'lemonchiffon',
+    padding: 10,
   },
   h1: {
-    flex: 1,
-    justifyContent: 'center',
     backgroundColor: 'mistyrose',
     padding: 8,
     fontFamily: 'cursive',
     borderBottom: '2px dotted',
     borderTop: '2px dotted',
   },
-
+  categoryHeader: {
+    fontFamily: 'cursive',
+    marginTop: 20,
+    borderBottom: '1px solid black',
+  },
   ul: {
     padding: 10,
     margin: 10,
@@ -64,5 +123,10 @@ const styles = StyleSheet.create({
     padding: '10px 0',
     borderBottom: '1px solid #ccc',
     fontFamily: 'cursive',
-  }
+  },
+  select: {
+    marginLeft: 10,
+    marginRight: 10,
+    fontFamily: 'cursive',
+  },
 });
